@@ -33,9 +33,10 @@ use std::{
 };
 use task::TaskId;
 use terminal::{
-    Clear, Copy, Event, HoveredWord, MaybeNavigationTarget, Modes, Paste, PasteText, Point, Range,
-    ScrollLineDown, ScrollLineUp, ScrollPageDown, ScrollPageUp, ScrollToBottom, ScrollToTop,
-    Search, ShowCharacterPalette, TaskState, TaskStatus, Terminal, TerminalBounds, ToggleViMode,
+    Clear, Copy, Event, HoveredWord, MaybeNavigationTarget, Modes, Paste, PastePrimarySelection,
+    PasteText, Point, Range, ScrollLineDown, ScrollLineUp, ScrollPageDown, ScrollPageUp,
+    ScrollToBottom, ScrollToTop, Search, ShowCharacterPalette, TaskState, TaskStatus, Terminal,
+    TerminalBounds, ToggleViMode,
     terminal_settings::{CursorShape, TerminalSettings},
 };
 use terminal_element::TerminalElement;
@@ -948,6 +949,29 @@ impl TerminalView {
         }
     }
 
+    fn paste_primary_selection(
+        &mut self,
+        _: &PastePrimarySelection,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        #[cfg(any(target_os = "linux", target_os = "freebsd"))]
+        {
+            let _ = window;
+            if let Some(item) = cx.read_from_primary() {
+                if let Some(text) = item.text() {
+                    self.terminal
+                        .update(cx, |terminal, _cx| terminal.paste(&text));
+                }
+            }
+        }
+
+        #[cfg(not(any(target_os = "linux", target_os = "freebsd")))]
+        {
+            self.paste(&Paste, window, cx);
+        }
+    }
+
     /// Emits a raw Ctrl+V so TUI agents can read the OS clipboard directly
     /// and attach images using their native workflows.
     fn forward_ctrl_v(&self, cx: &mut Context<Self>) {
@@ -1352,6 +1376,7 @@ impl Render for TerminalView {
             .on_action(cx.listener(TerminalView::paste))
             .on_action(cx.listener(TerminalView::editor_paste))
             .on_action(cx.listener(TerminalView::paste_text))
+            .on_action(cx.listener(TerminalView::paste_primary_selection))
             .on_action(cx.listener(TerminalView::clear))
             .on_action(cx.listener(TerminalView::scroll_line_up))
             .on_action(cx.listener(TerminalView::scroll_line_down))
