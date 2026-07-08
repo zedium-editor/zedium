@@ -1,0 +1,54 @@
+name: "Zedium: Release builds"
+
+# v0 delivery pipeline: release-profile binaries on all three OSes, uploaded
+# as workflow artifacts. Bundling (.app/.dmg, .deb/.tar.gz, installer),
+# signing, and notarization are later iterations; this proves the builds.
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact: zedium-macos-aarch64
+            binary: target/release/zed
+          - os: ubuntu-latest
+            artifact: zedium-linux-x86_64
+            binary: target/release/zed
+          - os: windows-latest
+            artifact: zedium-windows-x86_64
+            binary: target/release/zed.exe
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 240
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: ./script/linux
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/zedium' }}
+
+      - name: Build
+        run: cargo build --release --package zed
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.binary }}
+          if-no-files-found: error
