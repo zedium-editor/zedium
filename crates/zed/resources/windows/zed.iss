@@ -2,10 +2,10 @@
 AppId={#AppId}
 AppName={#AppName}
 AppVerName={#AppDisplayName}
-AppPublisher=Zed Industries
-AppPublisherURL=https://www.zed.dev/
-AppSupportURL=https://www.zed.dev/
-AppUpdatesURL=https://www.zed.dev/
+AppPublisher=Zedium (a community fork of Zed)
+AppPublisherURL=https://github.com/zedium-editor
+AppSupportURL=https://github.com/zedium-editor
+AppUpdatesURL=https://github.com/zedium-editor
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 DisableReadyPage=yes
