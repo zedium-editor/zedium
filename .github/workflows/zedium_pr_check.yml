@@ -20,7 +20,21 @@ jobs:
   check-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    env:
+      # The workspace debug+test build plus restored cargo cache exceeds the
+      # runner's free disk. Debug info dominates target size and incremental
+      # artifacts double it; CI benefits from neither. Costs line numbers in
+      # test-failure backtraces.
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_INCREMENTAL: 0
     steps:
+      # Reclaim ~25 GB by removing preinstalled toolchains we never use.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          df -h /
+
       - name: Check out merge result
         uses: actions/checkout@v4
 
