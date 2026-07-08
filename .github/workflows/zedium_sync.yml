@@ -53,7 +53,10 @@ jobs:
       # before the PR existed.
       - name: Ensure merge PR into zedium exists
         env:
-          GH_TOKEN: ${{ github.token }}
+          # The built-in token cannot create PRs whose diff touches workflow
+          # files (upstream edits theirs regularly); SYNC_TOKEN is a
+          # fine-grained PAT scoped to this repo.
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN || github.token }}
         run: |
           ahead="$(gh api "repos/${GITHUB_REPOSITORY}/compare/zedium...main" --jq '.ahead_by')"
           if [ "$ahead" = "0" ]; then
