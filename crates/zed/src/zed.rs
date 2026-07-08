@@ -1547,7 +1547,14 @@ fn open_about_window(cx: &mut App) {
                                     .color(Color::Muted)
                                     .size(LabelSize::XSmall),
                             )
-                            .child(Label::new(self.full_version.clone()).size(LabelSize::Small)),
+                            .child(Label::new(self.full_version.clone()).size(LabelSize::Small))
+                            .child(
+                                Label::new(
+                                    "Zedium is a community fork of Zed. Not affiliated with Zed Industries, Inc.",
+                                )
+                                .color(Color::Muted)
+                                .size(LabelSize::XSmall),
+                            ),
                     )
                     .child(
                         h_flex()
@@ -1622,13 +1629,13 @@ fn open_about_window(cx: &mut App) {
 
     let window_size = Size {
         width: px(440.),
-        height: px(300.),
+        height: px(330.),
     };
 
     cx.open_window(
         WindowOptions {
             titlebar: Some(TitlebarOptions {
-                title: Some("About Zed".into()),
+                title: Some("About Zedium".into()),
                 appears_transparent: true,
                 traffic_light_position: Some(point(px(12.), px(12.))),
             }),

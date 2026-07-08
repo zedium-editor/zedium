@@ -55,9 +55,9 @@ main() {
     "$platform" "$@"
 
     if [ "$(command -v zed)" = "$HOME/.local/bin/zed" ]; then
-        echo "Zed has been installed. Run with 'zed'"
+        echo "Zedium has been installed. Run with 'zed'"
     else
-        echo "To run Zed from your terminal, you must add ~/.local/bin to your PATH"
+        echo "To run Zedium from your terminal, you must add ~/.local/bin to your PATH"
         echo "Run:"
 
         case "$SHELL" in
@@ -74,7 +74,7 @@ main() {
                 ;;
         esac
 
-        echo "To run Zed now, '~/.local/bin/zed'"
+        echo "To run Zedium now, '~/.local/bin/zed'"
     fi
 }
 
@@ -94,20 +94,20 @@ linux() {
     appid=""
     case "$channel" in
       stable)
-        appid="dev.zed.Zed"
+        appid="dev.zedium.Zedium"
         ;;
       nightly)
-        appid="dev.zed.Zed-Nightly"
+        appid="dev.zedium.Zedium-Nightly"
         ;;
       preview)
-        appid="dev.zed.Zed-Preview"
+        appid="dev.zedium.Zedium-Preview"
         ;;
       dev)
-        appid="dev.zed.Zed-Dev"
+        appid="dev.zedium.Zedium-Dev"
         ;;
       *)
         echo "Unknown release channel: ${channel}. Using stable app ID."
-        appid="dev.zed.Zed"
+        appid="dev.zedium.Zedium"
         ;;
     esac
 

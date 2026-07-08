@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-# Uninstalls Zed that was installed using the install.sh script
+# Uninstalls Zedium that was installed using the install.sh script
 
 check_remaining_installations() {
     platform="$(uname -s)"
@@ -17,7 +17,7 @@ check_remaining_installations() {
 }
 
 prompt_remove_preferences() {
-    printf "Do you want to keep your Zed preferences? [Y/n] "
+    printf "Do you want to keep your Zedium preferences? [Y/n] "
     read -r response
     case "$response" in
         [nN]|[nN][oO])
@@ -45,7 +45,7 @@ main() {
 
     "$platform"
 
-    echo "Zed has been uninstalled"
+    echo "Zedium has been uninstalled"
 }
 
 linux() {
@@ -58,24 +58,24 @@ linux() {
     db_suffix="stable"
     case "$channel" in
       stable)
-        appid="dev.zed.Zed"
+        appid="dev.zedium.Zedium"
         db_suffix="stable"
         ;;
       nightly)
-        appid="dev.zed.Zed-Nightly"
+        appid="dev.zedium.Zedium-Nightly"
         db_suffix="nightly"
         ;;
       preview)
-        appid="dev.zed.Zed-Preview"
+        appid="dev.zedium.Zedium-Preview"
         db_suffix="preview"
         ;;
       dev)
-        appid="dev.zed.Zed-Dev"
+        appid="dev.zedium.Zedium-Dev"
         db_suffix="dev"
         ;;
       *)
         echo "Unknown release channel: ${channel}. Using stable app ID."
-        appid="dev.zed.Zed"
+        appid="dev.zedium.Zedium"
         db_suffix="stable"
         ;;
     esac
