@@ -38,5 +38,15 @@ jobs:
       - name: Install nextest
         uses: taiki-e/install-action@nextest
 
+      # Exclusions, all environment-dependent rather than code-dependent:
+      # - collab: its *_postgres tests need a database; upstream CI runs a
+      #   postgres service container. We don't ship the collab server, so
+      #   compile coverage (via the workspace build) is enough.
+      # - gpui_wgpu: atlas tests request a real graphics adapter; hosted
+      #   runners have no GPU and no software Vulkan driver.
+      # - extension_host's test extension install: compiles a wasm extension
+      #   with a hard 60s internal timeout, which 4-core hosted runners miss.
       - name: Run tests
-        run: cargo nextest run --workspace --no-fail-fast
+        run: |
+          cargo nextest run --workspace --no-fail-fast \
+            -E 'not (package(collab) or package(gpui_wgpu) or (package(extension_host) and test(test_extension_store_with_test_extension)))'

@@ -1054,7 +1054,15 @@ mod tests {
 
     fn init_test(cx: &mut TestAppContext) {
         cx.update(|cx| {
-            let settings_store = SettingsStore::test(cx);
+            let mut settings_store = SettingsStore::test(cx);
+            // Zedium ships with telemetry off by default; these tests
+            // exercise the event-queueing mechanics, which require it on.
+            settings_store
+                .set_user_settings(
+                    r#"{ "telemetry": { "metrics": true, "diagnostics": true } }"#,
+                    cx,
+                )
+                .expect("Unable to set user settings");
             cx.set_global(settings_store);
         });
     }

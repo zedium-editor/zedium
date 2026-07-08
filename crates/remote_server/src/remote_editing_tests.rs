@@ -238,6 +238,14 @@ async fn test_remote_telemetry_event_forwarding(
         })
         .detach();
 
+    // Zedium ships with telemetry off by default; enable it so the forwarded
+    // event is queued rather than dropped.
+    cx.update_global(|settings_store: &mut SettingsStore, cx| {
+        settings_store
+            .set_user_settings(r#"{ "telemetry": { "metrics": true } }"#, cx)
+            .expect("Unable to set user settings");
+    });
+
     // The remote server forwards a bare `FlexibleEvent` as JSON; mirror that
     // here by sending the proto message the forwarding task would send.
     let event_json = json!({

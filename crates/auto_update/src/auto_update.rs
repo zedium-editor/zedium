@@ -1345,7 +1345,7 @@ mod tests {
     impl Global for InstallOverride {}
 
     #[gpui::test]
-    fn test_auto_update_defaults_to_true(cx: &mut TestAppContext) {
+    fn test_auto_update_defaults_to_false(cx: &mut TestAppContext) {
         cx.update(|cx| {
             let mut store = SettingsStore::new(cx, &settings::default_settings());
             store
@@ -1355,7 +1355,9 @@ mod tests {
                 .set_user_settings("{}", cx)
                 .expect("Unable to set user settings");
             cx.set_global(store);
-            assert!(AutoUpdateSetting::get_global(cx).0);
+            // Zedium: auto-update is off by default; updates would come from
+            // Zed Industries' release servers.
+            assert!(!AutoUpdateSetting::get_global(cx).0);
         });
     }
 
@@ -1369,6 +1371,14 @@ mod tests {
 
         cx.update(|cx| {
             settings::init(cx);
+
+            // Zedium ships with auto-update off by default; this test
+            // exercises the update flow itself, so turn it on.
+            cx.update_global(|store: &mut SettingsStore, cx| {
+                store
+                    .set_user_settings(r#"{ "auto_update": true }"#, cx)
+                    .expect("Unable to set user settings");
+            });
 
             let current_version = semver::Version::new(0, 100, 0);
             release_channel::init_test(current_version, ReleaseChannel::Stable, cx);
