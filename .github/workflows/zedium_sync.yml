@@ -40,27 +40,26 @@ jobs:
           fetch-depth: 0
 
       - name: Fast-forward main from upstream
-        id: ff
         run: |
           git remote add upstream https://github.com/zed-industries/zed.git
           git fetch upstream main
-          before="$(git rev-parse HEAD)"
           # main is a pristine mirror; a non-fast-forward means it diverged
           # and needs human attention, so --ff-only failing the job is correct.
           git merge --ff-only upstream/main
-          after="$(git rev-parse HEAD)"
           git push origin main
-          if [ "$before" = "$after" ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
 
-      - name: Open or refresh merge PR into zedium
-        if: steps.ff.outputs.changed == 'true'
+      # Gate on main being ahead of zedium rather than on whether this run
+      # moved main: a previous run may have moved main and then failed
+      # before the PR existed.
+      - name: Ensure merge PR into zedium exists
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          ahead="$(gh api "repos/${GITHUB_REPOSITORY}/compare/zedium...main" --jq '.ahead_by')"
+          if [ "$ahead" = "0" ]; then
+            echo "zedium already contains main; no PR needed"
+            exit 0
+          fi
           existing="$(gh pr list --base zedium --head main --state open --json number --jq 'length')"
           if [ "$existing" = "0" ]; then
             gh pr create --base zedium --head main \
