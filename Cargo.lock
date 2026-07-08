@@ -23159,6 +23159,7 @@ dependencies = [
  "zed-reqwest",
  "zed_actions",
  "zed_env_vars",
+ "zedium",
  "zlog",
  "zlog_settings",
  "ztracing",
@@ -23359,6 +23360,14 @@ name = "zed_test_extension"
 version = "0.1.0"
 dependencies = [
  "zed_extension_api 0.8.0",
+]
+
+[[package]]
+name = "zedium"
+version = "0.1.0"
+dependencies = [
+ "gpui",
+ "settings",
 ]
 
 [[package]]
