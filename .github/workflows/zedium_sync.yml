@@ -1,0 +1,50 @@
+name: "Zedium: Sync upstream"
+
+on:
+  schedule:
+    # Every 6 hours; upstream moves fast but the merge PR batches it.
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fast-forward main from upstream
+        id: ff
+        run: |
+          git remote add upstream https://github.com/zed-industries/zed.git
+          git fetch upstream main
+          before="$(git rev-parse HEAD)"
+          # main is a pristine mirror; a non-fast-forward means it diverged
+          # and needs human attention, so --ff-only failing the job is correct.
+          git merge --ff-only upstream/main
+          after="$(git rev-parse HEAD)"
+          git push origin main
+          if [ "$before" = "$after" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or refresh merge PR into zedium
+        if: steps.ff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing="$(gh pr list --base zedium --head main --state open --json number --jq 'length')"
+          if [ "$existing" = "0" ]; then
+            gh pr create --base zedium --head main \
+              --title "Merge upstream main into zedium" \
+              --body "$(printf 'Automated upstream sync. Review the CI result and any conflicts before merging.\n\nRelease Notes:\n\n- N/A')"
+          fi
