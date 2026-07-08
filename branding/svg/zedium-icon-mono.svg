@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100" role="img" aria-label="Zedium">
+  <defs><mask id="k">
+    <rect x="5" y="5" width="90" height="90" rx="22" fill="white"/>
+    <text x="50" y="64" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="42" font-weight="600" fill="black" letter-spacing="-1">Zm</text>
+  </mask></defs>
+  <rect x="5" y="5" width="90" height="90" rx="22" fill="currentColor" mask="url(#k)"/>
+</svg>

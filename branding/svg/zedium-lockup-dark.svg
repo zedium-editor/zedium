@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="160" viewBox="0 0 420 80" role="img" aria-label="zedium - a community fork of Zed">
+  <defs><linearGradient id="g" x1="0.08" y1="0" x2="0.92" y2="1"><stop offset="0" stop-color="#6C8DB1"/><stop offset="0.30" stop-color="#3B5A81"/><stop offset="0.52" stop-color="#47668E"/><stop offset="0.74" stop-color="#223D5D"/><stop offset="1" stop-color="#101F35"/></linearGradient></defs>
+  <g transform="translate(4,4)">
+    <rect x="0" y="0" width="72" height="72" rx="17" fill="url(#g)"/>
+    <text x="36" y="49" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="34" font-weight="600" fill="#EAF0F7" letter-spacing="-0.8">Zm</text>
+  </g>
+  <text x="100" y="42" font-family="ui-monospace, Menlo, monospace" font-size="40" font-weight="600" letter-spacing="-1"><tspan fill="#E8EEF5">zed</tspan><tspan fill="#6F9AD0">ium</tspan></text>
+  <text x="102" y="66" font-family="ui-monospace, Menlo, monospace" font-size="15" fill="#8B99AB" letter-spacing="0">a community fork of Zed</text>
+</svg>

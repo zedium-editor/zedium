@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100" role="img" aria-label="Zedium preview">
+  <defs><linearGradient id="g" x1="0.08" y1="0" x2="0.92" y2="1"><stop offset="0" stop-color="#86B0D6"/><stop offset="0.30" stop-color="#4E7FA8"/><stop offset="0.52" stop-color="#3C6E97"/><stop offset="0.74" stop-color="#234B6B"/><stop offset="1" stop-color="#10283F"/></linearGradient></defs>
+  <rect x="5" y="5" width="90" height="90" rx="22" fill="url(#g)"/>
+  <text x="50" y="64" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="42" font-weight="600" fill="#EAF0F7" letter-spacing="-1">Zm</text>
+</svg>

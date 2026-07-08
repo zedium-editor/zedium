@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100" role="img" aria-label="Zedium">
+  <rect x="6" y="6" width="88" height="88" rx="21" fill="none" stroke="#7BA3D6" stroke-width="2.5"/>
+  <text x="50" y="64" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="42" font-weight="600" fill="#7BA3D6" letter-spacing="-1">Zm</text>
+</svg>
