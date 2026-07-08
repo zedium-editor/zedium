@@ -12,6 +12,7 @@ mod terminal;
 mod theme;
 mod title_bar;
 mod workspace;
+mod zedium;
 
 pub use action::{ActionName, ActionWithArguments, CommandAliasTarget};
 pub use agent::*;
@@ -31,6 +32,7 @@ pub use terminal::*;
 pub use theme::*;
 pub use title_bar::*;
 pub use workspace::*;
+pub use zedium::*;
 
 use collections::{HashMap, IndexMap};
 use schemars::JsonSchema;
@@ -263,6 +265,9 @@ pub struct SettingsContent {
     /// Settings for developer-oriented instrumentation tools (profilers,
     /// tracers, etc.) that can be toggled at runtime.
     pub instrumentation: Option<InstrumentationSettingsContent>,
+
+    /// Settings for Zedium fork features.
+    pub zedium: Option<ZediumSettingsContent>,
 }
 
 /// Configuration for developer-oriented instrumentation tools that collect

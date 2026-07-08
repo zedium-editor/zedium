@@ -2779,4 +2779,9 @@
       "enabled": false,
     },
   },
+  // Zedium fork feature settings.
+  "zedium": {
+    // Master switch for all Zedium fork features.
+    "enabled": true,
+  },
 }
