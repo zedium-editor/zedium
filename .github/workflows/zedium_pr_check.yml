@@ -1,0 +1,42 @@
+name: "Zedium: PR checks"
+
+# Runs against the PR's merge ref (the result of merging the PR into its
+# base), so a green check means the post-merge tree compiles and passes
+# tests. Applies to sync PRs (main -> zedium) and feature PRs alike.
+on:
+  pull_request:
+    branches:
+      - zedium
+  workflow_dispatch:
+
+concurrency:
+  group: pr-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out merge result
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: ./script/linux
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      # Fail fast on compile errors (the common upstream-churn breakage)
+      # before paying for the full test build.
+      - name: cargo check
+        run: cargo check --package zed
+
+      - name: Install nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Run tests
+        run: cargo nextest run --workspace --no-fail-fast
