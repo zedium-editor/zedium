@@ -37,6 +37,67 @@ jobs:
 
       - name: Check out merge result
         uses: actions/checkout@v4
+        with:
+          # The merge commit's first parent is the current base tip, needed
+          # for the diff-scoped test filter below.
+          fetch-depth: 2
+
+      # Mirrors upstream's run_tests orchestrate step: map the PR's diff to
+      # workspace packages and test only those plus their reverse
+      # dependencies. Anything that can't be safely scoped (toolchain, cargo
+      # config, CI, root manifests, unmappable files) falls back to the full
+      # suite. workflow_dispatch runs always use the full suite.
+      - name: Compute diff-scoped test filter
+        id: filter
+        run: |
+          set -euo pipefail
+          echo "changed_packages=" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "Not a PR; running full test suite"
+            exit 0
+          fi
+          if ! git rev-parse -q --verify 'HEAD^1' > /dev/null; then
+            echo "Base parent unavailable; running full test suite"
+            exit 0
+          fi
+          # The checkout is the merge ref, so HEAD^1 is the base tip and this
+          # diff is exactly what merging the PR would change.
+          CHANGED_FILES="$(git diff --name-only 'HEAD^1' HEAD)"
+          if echo "$CHANGED_FILES" | grep -qP '^(rust-toolchain\.toml|\.cargo/|\.github/|Cargo\.(toml|lock)$)'; then
+            echo "Toolchain, cargo config, CI, or root manifest changed; running full test suite"
+            exit 0
+          fi
+
+          CHANGED_DIRS=$(echo "$CHANGED_FILES" | grep -oP '^(crates|tooling)/\K[^/]+' | sort -u || true)
+          # Map directory names to real package names; directories outside the
+          # root workspace (e.g. tooling/lints) have no mapping and are
+          # skipped, which falls through to the full suite if nothing maps.
+          DIR_TO_PKG=$(cargo metadata --format-version=1 --no-deps 2>/dev/null | \
+            jq -r '.packages[] | select(.manifest_path | test("crates/|tooling/")) | "\(.manifest_path | capture("(crates|tooling)/(?<dir>[^/]+)") | .dir)=\(.name)"')
+
+          PKGS=""
+          for dir in $CHANGED_DIRS; do
+            pkg=$(echo "$DIR_TO_PKG" | grep "^${dir}=" | cut -d= -f2 | head -1 || true)
+            if [ -n "$pkg" ]; then
+              PKGS=$(printf '%s\n%s' "$PKGS" "$pkg")
+            fi
+          done
+
+          # Assets are compiled into these crates; the dependency graph cannot
+          # see that coupling.
+          if echo "$CHANGED_FILES" | grep -qP '^assets/'; then
+            PKGS=$(printf '%s\n%s\n%s' "$PKGS" "settings" "assets")
+          fi
+
+          PKGS=$(echo "$PKGS" | grep -v '^$' | sort -u || true)
+          if [ -z "$PKGS" ]; then
+            echo "No changed packages detected; running full test suite"
+            exit 0
+          fi
+
+          FILTERSET=$(echo "$PKGS" | sed 's/.*/rdeps(&)/' | paste -sd '|' -)
+          echo "Changed packages filterset: $FILTERSET"
+          echo "changed_packages=$FILTERSET" >> "$GITHUB_OUTPUT"
 
       - name: Install Linux build dependencies
         run: ./script/linux
@@ -61,6 +122,14 @@ jobs:
       # - extension_host's test extension install: compiles a wasm extension
       #   with a hard 60s internal timeout, which 4-core hosted runners miss.
       - name: Run tests
+        env:
+          CHANGED_PACKAGES: ${{ steps.filter.outputs.changed_packages }}
         run: |
-          cargo nextest run --workspace --no-fail-fast \
-            -E 'not (package(collab) or package(gpui_wgpu) or (package(extension_host) and test(test_extension_store_with_test_extension)))'
+          EXCLUSIONS='package(collab) or package(gpui_wgpu) or (package(extension_host) and test(test_extension_store_with_test_extension))'
+          if [ -n "$CHANGED_PACKAGES" ]; then
+            EXPR="($CHANGED_PACKAGES) and not ($EXCLUSIONS)"
+          else
+            EXPR="not ($EXCLUSIONS)"
+          fi
+          echo "Filter: $EXPR"
+          cargo nextest run --workspace --no-fail-fast --no-tests=warn -E "$EXPR"
