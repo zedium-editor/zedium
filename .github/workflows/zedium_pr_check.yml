@@ -35,6 +35,16 @@ jobs:
           sudo docker image prune --all --force
           df -h /
 
+      # Even with debug info off, the ~100 statically-linked test binaries of
+      # a workspace test build outgrow the root disk. The runner's scratch
+      # disk at /mnt (~65 GB) exists solely for workloads like this.
+      - name: Put the cargo target dir on the scratch disk
+        run: |
+          sudo mkdir -p /mnt/cargo-target
+          sudo chown "$USER" /mnt/cargo-target
+          echo "CARGO_TARGET_DIR=/mnt/cargo-target" >> "$GITHUB_ENV"
+          df -h / /mnt
+
       - name: Check out merge result
         uses: actions/checkout@v4
 
