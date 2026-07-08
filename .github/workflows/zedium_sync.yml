@@ -57,15 +57,20 @@ jobs:
           # files (upstream edits theirs regularly); SYNC_TOKEN is a
           # fine-grained PAT scoped to this repo.
           GH_TOKEN: ${{ secrets.SYNC_TOKEN || github.token }}
+        # REST rather than gh pr (GraphQL): fine-grained PATs are rejected by
+        # the GraphQL createPullRequest mutation.
         run: |
           ahead="$(gh api "repos/${GITHUB_REPOSITORY}/compare/zedium...main" --jq '.ahead_by')"
           if [ "$ahead" = "0" ]; then
             echo "zedium already contains main; no PR needed"
             exit 0
           fi
-          existing="$(gh pr list --base zedium --head main --state open --json number --jq 'length')"
+          existing="$(gh api "repos/${GITHUB_REPOSITORY}/pulls?base=zedium&head=${GITHUB_REPOSITORY_OWNER}:main&state=open" --jq 'length')"
           if [ "$existing" = "0" ]; then
-            gh pr create --base zedium --head main \
-              --title "Merge upstream main into zedium" \
-              --body "$(printf 'Automated upstream sync. Review the CI result and any conflicts before merging.\n\nRelease Notes:\n\n- N/A')"
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/pulls" \
+              -f title="Merge upstream main into zedium" \
+              -f head="main" \
+              -f base="zedium" \
+              -f body="$(printf 'Automated upstream sync. Review the CI result and any conflicts before merging.\n\nRelease Notes:\n\n- N/A')" \
+              --jq '.html_url'
           fi
