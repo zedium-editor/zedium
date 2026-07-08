@@ -31,6 +31,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 240
     steps:
+      # Hosted Windows runners still enforce the 260-char path limit; cargo's
+      # checkout of the pet git dependency contains fixture paths that exceed
+      # it. Upstream avoids this only because their runners are self-hosted.
+      - name: Enable Windows long paths
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+          git config --system core.longpaths true
+
       - name: Check out
         uses: actions/checkout@v4
 
