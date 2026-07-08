@@ -1,0 +1,24 @@
+Zedium — a community fork of Zed
+================================
+
+Zedium is an independent, community-maintained fork of the Zed editor
+(https://github.com/zed-industries/zed).
+
+Zedium is NOT affiliated with, sponsored by, or endorsed by Zed
+Industries, Inc. "Zed" and the Zed logo are trademarks of Zed
+Industries, Inc. and are not used by this project as source identifiers;
+Zedium uses its own name and logo.
+
+Copyright for the original Zed source code remains with Zed Industries,
+Inc. and the respective contributors. Zedium's modifications are
+copyright the Zedium contributors.
+
+Licensing is unchanged from upstream: see LICENSE-GPL for the editor
+(GPL-3.0-or-later) and LICENSE-APACHE for the components licensed under
+Apache-2.0 (including GPUI and the extension API). All upstream license
+files and copyright notices are preserved.
+
+Zedium disables Zed's hosted-service integrations by default (telemetry,
+crash reporting, and automatic updates from Zed Industries' servers).
+Use of any Zed Industries hosted service from a Zedium build is subject
+to Zed Industries' own terms of service.
