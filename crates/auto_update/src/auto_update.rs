@@ -1322,7 +1322,7 @@ mod tests {
     use client::Client;
     use clock::FakeSystemClock;
     use futures::channel::oneshot;
-    use gpui::TestAppContext;
+    use gpui::{TestAppContext, UpdateGlobal as _};
     use http_client::{FakeHttpClient, Response};
     use settings::default_settings;
     use std::{
@@ -1374,7 +1374,7 @@ mod tests {
 
             // Zedium ships with auto-update off by default; this test
             // exercises the update flow itself, so turn it on.
-            cx.update_global(|store: &mut SettingsStore, cx| {
+            SettingsStore::update_global(cx, |store, cx| {
                 store
                     .set_user_settings(r#"{ "auto_update": true }"#, cx)
                     .expect("Unable to set user settings");
