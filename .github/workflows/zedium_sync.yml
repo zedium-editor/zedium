@@ -9,11 +9,30 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      # Upstream syncs bring in zed-industries' workflow files, and any NEW
+      # workflow arrives enabled by default. Re-disable everything that is
+      # not ours on every run, before doing anything else.
+      - name: Disable inherited upstream workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow list --all --json id,path,state --jq '
+            .[]
+            | select(.state == "active")
+            | select(.path | startswith(".github/workflows/"))
+            | select(.path | startswith(".github/workflows/zedium_") | not)
+            | .id' \
+          | while read -r workflow_id; do
+              gh workflow disable "$workflow_id"
+            done
+
       - name: Check out main
         uses: actions/checkout@v4
         with:
