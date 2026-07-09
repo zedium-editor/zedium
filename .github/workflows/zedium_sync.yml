@@ -38,6 +38,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # The built-in token cannot push changes to workflow files, and
+          # upstream edits theirs regularly; SYNC_TOKEN is a fine-grained PAT
+          # with `contents` and `workflows` write on this repo, used by the
+          # fast-forward push below.
+          token: ${{ secrets.SYNC_TOKEN || github.token }}
 
       - name: Fast-forward main from upstream
         run: |
