@@ -192,6 +192,8 @@ impl<D: PickerDelegate> Picker<D> {
             .on_action(cx.listener(Self::editor_move_up))
             .on_action(cx.listener(Self::select_first))
             .on_action(cx.listener(Self::select_last))
+            .on_action(cx.listener(Self::select_child))
+            .on_action(cx.listener(Self::select_parent))
             .on_action(cx.listener(Self::cancel))
             .on_action(cx.listener(Self::confirm))
             .on_action(cx.listener(Self::secondary_confirm))
@@ -208,13 +210,7 @@ impl<D: PickerDelegate> Picker<D> {
                 Head::Editor(editor) => {
                     if editor_position == PickerEditorPosition::Start {
                         let editor = editor.clone();
-                        Some(
-                            h_flex().w_full().child(
-                                div()
-                                    .flex_1()
-                                    .child(self.render_editor(&editor, window, cx)),
-                            ),
-                        )
+                        Some(self.render_editor(&editor, window, cx))
                     } else {
                         None
                     }
